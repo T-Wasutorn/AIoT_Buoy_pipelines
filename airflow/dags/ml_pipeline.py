@@ -30,17 +30,28 @@ with DAG(
     tags=['ml', 'xgboost', 'isolation_forest', 'training'],
 ) as dag:
 
+    dbt_runtime_setup = "export DBT_RUNTIME_DIR=$(mktemp -d /tmp/dbt_runtime_XXXXXX) && mkdir -p $DBT_RUNTIME_DIR/target $DBT_RUNTIME_DIR/logs $DBT_RUNTIME_DIR/packages && export DBT_TARGET_PATH=$DBT_RUNTIME_DIR/target && export DBT_LOG_PATH=$DBT_RUNTIME_DIR/logs && export DBT_PACKAGES_INSTALL_PATH=$DBT_RUNTIME_DIR/packages"
+
     # 1. check feature_water_quality data readiness
     check_data_readiness = BashOperator(
         task_id='check_data_readiness',
         bash_command="""
+        set -euo pipefail
         cd /opt/airflow/dbt && \
+        {{ params.dbt_runtime_setup }} && \
+        dbt deps \
+        --project-dir /opt/airflow/dbt \
+        --profiles-dir /home/airflow/.dbt \
+        --target prod \
+        2>&1 && \
         dbt test \
         --select feature_water_quality \
         --project-dir /opt/airflow/dbt \
         --profiles-dir /home/airflow/.dbt \
-        --target prod
-        """
+        --target prod \
+        2>&1
+        """,
+        params={"dbt_runtime_setup": dbt_runtime_setup},
     )
 
     # 2. train forecast model (XGBoost)
