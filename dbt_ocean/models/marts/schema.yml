@@ -1,0 +1,87 @@
+version: 2
+
+models:
+  - name: feature_water_quality
+    columns:
+      - name: buoy_id
+        tests:
+          - not_null
+
+      - name: created_at
+        tests:
+          - not_null
+
+      - name: turbidity
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000
+
+      - name: water_temperature
+        tests:
+          - not_null
+
+      - name: air_temp
+        tests:
+          - not_null
+
+      - name: pm_25
+        tests:
+          - not_null
+
+      - name: co2
+        tests:
+          - not_null
+
+      - name: turbidity_avg_6
+
+      - name: turbidity_change
+
+      - name: water_temp_avg_6
+
+      - name: water_temp_change
+
+      - name: air_temp_change
+
+      - name: pm_25_avg_6
+
+      - name: pm_25_change
+
+      - name: co2_avg_6
+
+      - name: co2_change
+
+  - name: iot_metrics_hourly
+    columns:
+      - name: buoy_id
+        tests:
+          - not_null
+
+      - name: hour
+        tests:
+          - not_null
+
+      - name: avg_air_temp
+        tests:
+          - not_null
+
+      - name: avg_pm_25
+        tests:
+          - not_null
+
+      - name: avg_co2
+        tests:
+          - not_null
+
+      - name: avg_turb
+        tests:
+          - not_null
+
+      - name: max_turb
+        tests:
+          - not_null
+
+      - name: min_turb
+        tests:
+          - not_null

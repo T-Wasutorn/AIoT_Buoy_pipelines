@@ -1,0 +1,6 @@
+
+target/
+dbt_packages/
+logs/
+dbt_ocean/dbt_packages/
+dbt_ocean/target/

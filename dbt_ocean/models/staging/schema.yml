@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_iot_event
+    columns:
+      - name: event_id
+        tests:
+          - not_null
+          - unique
+
+      - name: created_at
+        tests:
+          - not_null
+
+      - name: turbidity
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000
+
+      - name: buoy_id
+        tests:
+          - not_null

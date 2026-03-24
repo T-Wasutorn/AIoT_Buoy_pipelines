@@ -1,0 +1,40 @@
+# --- Git & Metadata ---
+.git
+.gitignore
+README.md
+.dockerignore
+
+# --- Environment & Secrets ---
+# สำคัญมาก! ห้ามให้ .env หลุดเข้าไปใน Image เด็ดขาด
+.env
+.env.example
+
+# --- Python & Dependencies ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.pytest_cache/
+.astropy/
+
+# --- Airflow & DB Local Data ---
+# ไม่เอา logs และข้อมูล DB ที่รันบนเครื่อง Local เข้าไป
+logs/
+plugins/
+postgres-db-volume/
+
+# --- dbt ---
+# ไม่เอาโฟลเดอร์ที่ dbt build แล้วเข้าไป (เพราะมันจะไป build ใหม่ใน container)
+target/
+dbt_packages/
+logs/
+
+# --- Machine Learning ---
+# ถ้าไฟล์โมเดลใหญ่มาก ไม่ควรฝังใน Image (ควรโหลดจาก Volume หรือ Cloud Storage)
+# แต่ถ้าต้องการติดไปกับ Image เลย ก็ไม่ต้อง ignore .joblib ครับ
+# *.joblib
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db

@@ -1,0 +1,21 @@
+dbt_ocean:
+  outputs:
+    dev:
+      dbname: ocean_db
+      host: host.docker.internal
+      password: oceanpass
+      port: 5555
+      schema: public
+      threads: 1
+      type: postgres
+      user: ocean
+    prod:
+      dbname: "{{ env_var('DB_POSTGRES_NAME') }}"
+      host: "{{ env_var('DB_POSTGRES_HOST') }}"
+      password: "{{ env_var('DB_POSTGRES_PASS') }}"
+      port: "{{ env_var('DB_POSTGRES_PORT') | int }}"
+      schema: public
+      threads: 1
+      type: postgres
+      user: "{{ env_var('DB_POSTGRES_USER') }}"
+  target: prod

@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: public        # source name which is used in {{ source('public', ...) }}
+    database: "{{ env_var('DB_POSTGRES_NAME') }}"
+    schema: public      # schema name in Postgres
+    tables:
+      - name: raw_iot_event # real table name from Database
