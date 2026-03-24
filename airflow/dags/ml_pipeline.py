@@ -39,7 +39,7 @@ with DAG(
         --select feature_water_quality \
         --project-dir /opt/airflow/dbt \
         --profiles-dir /home/airflow/.dbt \
-        --target dev
+        --target prod
         """
     )
 

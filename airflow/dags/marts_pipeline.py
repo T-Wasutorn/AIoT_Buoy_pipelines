@@ -106,7 +106,8 @@ with DAG(
         cd /opt/airflow/dbt && \
         dbt debug \
         --project-dir /opt/airflow/dbt \
-        --profiles-dir /home/airflow/.dbt
+        --profiles-dir /home/airflow/.dbt \
+        --target prod
         """,
         dag=dag
     )
@@ -117,7 +118,8 @@ with DAG(
         cd /opt/airflow/dbt && \
         dbt deps \
         --project-dir /opt/airflow/dbt \
-        --profiles-dir /home/airflow/.dbt
+        --profiles-dir /home/airflow/.dbt \
+        --target prod
         """,
     )
 
@@ -133,7 +135,8 @@ with DAG(
         dbt run \
         --full-refresh \
         --project-dir /opt/airflow/dbt \
-        --profiles-dir /home/airflow/.dbt
+        --profiles-dir /home/airflow/.dbt \
+        --target prod
         """,
     )
 
@@ -143,7 +146,8 @@ with DAG(
         cd /opt/airflow/dbt && \
         dbt run \
         --project-dir /opt/airflow/dbt \
-        --profiles-dir /home/airflow/.dbt
+        --profiles-dir /home/airflow/.dbt \
+        --target prod
         """,
     )
 
@@ -154,7 +158,8 @@ with DAG(
         cd /opt/airflow/dbt && \
         dbt test \
         --project-dir /opt/airflow/dbt \
-        --profiles-dir /home/airflow/.dbt
+        --profiles-dir /home/airflow/.dbt \
+        --target prod
         """,
         trigger_rule='none_failed_min_one_success',
         dag=dag
