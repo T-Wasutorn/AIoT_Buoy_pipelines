@@ -41,11 +41,11 @@ default_args = {
 def check_feature_table(**context):
     import psycopg2
     import os
-    
+
     conn = None
     cur = None
     table_name = "feature_water_quality"
-    
+
     try:
         conn = psycopg2.connect(
             host=os.getenv("DB_POSTGRES_HOST"),
@@ -59,7 +59,7 @@ def check_feature_table(**context):
         # check if table is exists in Database
         check_table_query = f"""
             SELECT EXISTS (
-                SELECT FROM information_schema.tables 
+                SELECT FROM information_schema.tables
                 WHERE table_name = '{table_name}'
             );
         """
@@ -77,14 +77,14 @@ def check_feature_table(**context):
 
         if count == 0:
             return 'dbt_run_full_refresh'
-        
+
         return 'dbt_run_incremental'
 
     except Exception as e:
         print(f"[!] Error checking table: {e}")
         # In-case it's Error by other reason, decided Full Refresh for security
         return 'dbt_run_full_refresh'
-        
+
     finally:
         if cur:
             cur.close()
@@ -100,27 +100,37 @@ with DAG(
     tags=['aiot', 'dbt', 'ml'],
 ) as dag:
 
+    dbt_runtime_setup = "export DBT_RUNTIME_DIR=$(mktemp -d /tmp/dbt_runtime_XXXXXX) && mkdir -p $DBT_RUNTIME_DIR/target $DBT_RUNTIME_DIR/logs $DBT_RUNTIME_DIR/packages && export DBT_TARGET_PATH=$DBT_RUNTIME_DIR/target && export DBT_LOG_PATH=$DBT_RUNTIME_DIR/logs && export DBT_PACKAGES_INSTALL_PATH=$DBT_RUNTIME_DIR/packages"
+
     dbt_debug = BashOperator(
         task_id='dbt_debug',
         bash_command="""
+        set -euo pipefail
         cd /opt/airflow/dbt && \
+        {{ params.dbt_runtime_setup }} && \
         dbt debug \
         --project-dir /opt/airflow/dbt \
         --profiles-dir /home/airflow/.dbt \
-        --target prod
+        --target prod \
+        2>&1
         """,
+        params={"dbt_runtime_setup": dbt_runtime_setup},
         dag=dag
     )
 
     dbt_deps = BashOperator(
         task_id='dbt_deps',
         bash_command="""
+        set -euo pipefail
         cd /opt/airflow/dbt && \
+        {{ params.dbt_runtime_setup }} && \
         dbt deps \
         --project-dir /opt/airflow/dbt \
         --profiles-dir /home/airflow/.dbt \
-        --target prod
+        --target prod \
+        2>&1
         """,
+        params={"dbt_runtime_setup": dbt_runtime_setup},
     )
 
     check_table = BranchPythonOperator(
@@ -131,36 +141,48 @@ with DAG(
     dbt_run_full_refresh = BashOperator(
         task_id='dbt_run_full_refresh',
         bash_command="""
+        set -euo pipefail
         cd /opt/airflow/dbt && \
+        {{ params.dbt_runtime_setup }} && \
         dbt run \
         --full-refresh \
         --project-dir /opt/airflow/dbt \
         --profiles-dir /home/airflow/.dbt \
-        --target prod
+        --target prod \
+        2>&1
         """,
+        params={"dbt_runtime_setup": dbt_runtime_setup},
     )
 
     dbt_run_incremental = BashOperator(
         task_id='dbt_run_incremental',
         bash_command="""
+        set -euo pipefail
         cd /opt/airflow/dbt && \
+        {{ params.dbt_runtime_setup }} && \
         dbt run \
         --project-dir /opt/airflow/dbt \
         --profiles-dir /home/airflow/.dbt \
-        --target prod
+        --target prod \
+        2>&1
         """,
+        params={"dbt_runtime_setup": dbt_runtime_setup},
     )
 
     # check data quality
     dbt_test = BashOperator(
         task_id='dbt_test',
         bash_command="""
+        set -euo pipefail
         cd /opt/airflow/dbt && \
+        {{ params.dbt_runtime_setup }} && \
         dbt test \
         --project-dir /opt/airflow/dbt \
         --profiles-dir /home/airflow/.dbt \
-        --target prod
+        --target prod \
+        2>&1
         """,
+        params={"dbt_runtime_setup": dbt_runtime_setup},
         trigger_rule='none_failed_min_one_success',
         dag=dag
     )
